@@ -1,0 +1,91 @@
+# 编码=utf-8
+导入 JSON
+导入时间
+
+PLUGIN_METADATA = {
+    “id”： “authme”，
+    “版本”： “0.0.1”，
+    “名称”： “身份验证”，
+    “作者”： “大太”，
+        “依赖关系”：{
+        “麦克德锻造”： “<1.0.0”，
+    }
+}
+
+
+json_filename = “config/authme_list.json”
+
+Game_account = {
+
+}
+
+Login_queue = []
+
+
+
+def on_player_joined（服务器，播放器）：
+    服务器。execute（“effect give {} minecraft：slowness 1000000 255”.格式（播放器))
+    服务器。execute（“effect give {} minecraft：mining_fatigue 1000000 255”.格式（播放器))
+    服务器。execute（“effect give {} minecraft：blindness 1000000 255”。格式（播放器))
+    如果玩家在Game_account：
+        服务器。告诉（玩家，'输入“！！log [密码]“来登录')
+        Login_queue。追加（播放器）)
+    其他：
+        服务器。告诉（玩家，'输入“！！reg [密码] [重复密码]“来注册')
+
+        
+
+def on_info（服务器，信息）：
+    如果信息。内容。开头为（'！！log'）：
+        如果信息。Login_queue中的玩家  ：
+            密码 = 信息。内容。分裂(" ")
+            如果 len（密码） == 2：
+                如果密码[1] == Game_account[信息.播放器]：
+                    服务器。execute（“effect clear {} minecraft：slowness”.格式（信息。选手))
+                    服务器。execute（“effect clear {} minecraft：mining_fatigue”.格式（信息。选手))
+                    服务器。execute（“效果清除{} minecraft：blindness”。格式（信息。选手))
+                    服务器。告诉（信息。播放器，“登录成功”)
+                    密码 = ('')
+                    Login_queue。删除（信息。选手)
+                其他：
+                    服务器。告诉（信息。player，“密码错误”)
+            其他：
+                服务器。告诉（信息。播放器，“格式错误”)
+        其他：
+            服务器。告诉（信息。player，“你已经登陆过了”)
+    如果信息。内容。开头为（“！！注册“）：
+        如果信息。Game_account中的玩家  ：
+            服务器。告诉（信息。player，“你已经注册过了”)
+        其他：
+            参数 = 信息。内容。分裂(' ')
+            如果 len（args） == 3：
+                如果参数[1] == 参数[2]：
+                    Game_account[信息.玩家] = 参数[2]
+                    保存Json()
+                    服务器。execute（“effect clear {} minecraft：slowness”.格式（信息。选手))
+                    服务器。execute（“effect clear {} minecraft：mining_fatigue”.格式（信息。选手))
+                    服务器。execute（“效果清除{} minecraft：blindness”。格式（信息。选手))
+                    服务器。告诉（信息。player，“注册成功，已自动登录”)
+                其他：
+                    服务器。告诉（信息。player，“请输入相同的密码”)
+            其他：
+                服务器。告诉（信息。播放器，“格式错误”)
+
+
+
+def on_load（服务器，旧）：
+    全球Game_account
+    尝试：
+        打开（json_filename）作为f：
+            Game_account = json。load（f， encoding='utf8')
+    除了：
+        保存Json()
+
+
+def on_unload（服务器）：
+    保存Json()
+
+#保存json
+def saveJson（）：
+    将 open（json_filename， 'w'） 作为 f：
+        杰森。dump（Game_account， f， indent=4)
